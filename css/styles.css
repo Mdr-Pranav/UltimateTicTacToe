@@ -67,6 +67,7 @@ body {
     position: relative;
     z-index: 1;
     margin: 0 auto;
+    overflow-x: hidden;
 }
 
 .game-header {
@@ -92,11 +93,13 @@ body {
     justify-content: center;
     align-items: flex-start;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .main-board-container {
     flex: 1 1 600px;
     max-width: 100%;
+    width: 100%;
 }
 
 .main-board {
@@ -109,6 +112,7 @@ body {
     padding: 5px;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    max-width: 100%;
 }
 
 .sub-board {
@@ -120,6 +124,7 @@ body {
     background-color: var(--grid-color);
     padding: 2px;
     border-radius: 4px;
+    max-width: 100%;
 }
 
 .cell {
@@ -134,6 +139,8 @@ body {
     min-height: 30px;
     min-width: 30px;
     touch-action: manipulation;
+    width: 100%;
+    aspect-ratio: 1;
 }
 
 .cell:hover {
@@ -355,6 +362,24 @@ body.light-theme .active-board {
         min-width: unset;
     }
 
+    .main-board-container {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .main-board {
+        max-width: 100%;
+    }
+
+    .sub-board {
+        max-width: 100%;
+    }
+
+    .cell {
+        min-height: 25px;
+        min-width: 25px;
+    }
+
     .meta-board-container {
         margin-bottom: 15px;
     }
@@ -381,17 +406,31 @@ body.light-theme .active-board {
 }
 
 @media (max-width: 480px) {
+    .game-container {
+        padding: 5px;
+    }
+
+    .main-board {
+        padding: 3px;
+        gap: 3px;
+    }
+
+    .sub-board {
+        padding: 1px;
+        gap: 1px;
+    }
+
+    .cell {
+        min-height: 20px;
+        min-width: 20px;
+    }
+
     .controls {
         flex-direction: column;
     }
 
     .neon-button {
         width: 100%;
-    }
-
-    .cell {
-        min-height: 25px;
-        min-width: 25px;
     }
 }
 
