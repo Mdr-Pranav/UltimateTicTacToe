@@ -66,6 +66,7 @@ body {
     padding: 20px;
     position: relative;
     z-index: 1;
+    margin: 0 auto;
 }
 
 .game-header {
@@ -74,7 +75,7 @@ body {
 }
 
 .game-header h1 {
-    font-size: 3em;
+    font-size: clamp(2em, 5vw, 3em);
     color: var(--primary-color);
     text-shadow: 0 0 10px var(--primary-color);
     margin-bottom: 10px;
@@ -87,13 +88,15 @@ body {
 
 .game-layout {
     display: flex;
-    gap: 40px;
+    gap: 20px;
     justify-content: center;
     align-items: flex-start;
+    flex-wrap: wrap;
 }
 
 .main-board-container {
-    flex: 0 0 600px;
+    flex: 1 1 600px;
+    max-width: 100%;
 }
 
 .main-board {
@@ -101,9 +104,9 @@ body {
     aspect-ratio: 1;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    gap: 5px;
     background-color: var(--primary-color);
-    padding: 10px;
+    padding: 5px;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
 }
@@ -125,11 +128,12 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1.5em;
+    font-size: clamp(1em, 3vw, 1.5em);
     cursor: pointer;
     transition: background-color 0.2s;
-    min-height: 40px;
-    min-width: 40px;
+    min-height: 30px;
+    min-width: 30px;
+    touch-action: manipulation;
 }
 
 .cell:hover {
@@ -228,25 +232,26 @@ body.light-theme .active-board {
 }
 
 .side-panel {
-    flex: 0 0 300px;
+    flex: 1 1 300px;
+    min-width: 280px;
 }
 
 .meta-board-container {
     background-color: var(--grid-color);
-    padding: 20px;
+    padding: 15px;
     border-radius: 10px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     width: 100%;
 }
 
 .meta-board {
     width: 100%;
-    max-width: 240px;
-    margin: 15px auto 0;
+    max-width: 200px;
+    margin: 10px auto 0;
     aspect-ratio: 1;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    gap: 5px;
 }
 
 .meta-cell {
@@ -298,23 +303,16 @@ body.light-theme .active-board {
 
 .controls {
     display: flex;
+    flex-direction: column;
     gap: 10px;
-    margin-bottom: 20px;
+    margin: 20px 0;
 }
 
 .neon-button {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: transparent;
-    color: var(--primary-color);
-    border: 1px solid var(--primary-color);
-    cursor: pointer;
-    transition: all 0.3s;
-    text-transform: uppercase;
-    font-weight: bold;
-    min-height: 42px;
+    padding: 12px 20px;
+    font-size: clamp(0.9em, 2vw, 1em);
+    min-height: 44px;
+    touch-action: manipulation;
 }
 
 .neon-button:hover {
@@ -324,7 +322,8 @@ body.light-theme .active-board {
 }
 
 .instructions {
-    margin-top: 20px;
+    font-size: clamp(0.9em, 2vw, 1em);
+    line-height: 1.5;
 }
 
 .instructions h3 {
@@ -334,30 +333,65 @@ body.light-theme .active-board {
 
 .instructions ul {
     list-style-position: inside;
-    color: var(--text-color);
+    margin-top: 10px;
 }
 
 .instructions li {
     margin-bottom: 5px;
-    font-size: 0.9em;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 768px) {
+    .game-container {
+        padding: 10px;
+    }
+
     .game-layout {
-        flex-direction: column;
-        align-items: center;
+        gap: 15px;
     }
-    
-    .main-board-container {
-        flex: none;
-        width: 100%;
-        max-width: 600px;
-    }
-    
+
     .side-panel {
-        flex: none;
+        order: -1;
         width: 100%;
-        max-width: 600px;
+        min-width: unset;
+    }
+
+    .meta-board-container {
+        margin-bottom: 15px;
+    }
+
+    .controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .neon-button {
+        flex: 1 1 auto;
+        min-width: 120px;
+    }
+
+    .difficulty-select {
+        width: 100%;
+    }
+
+    .neon-select {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .controls {
+        flex-direction: column;
+    }
+
+    .neon-button {
+        width: 100%;
+    }
+
+    .cell {
+        min-height: 25px;
+        min-width: 25px;
     }
 }
 
