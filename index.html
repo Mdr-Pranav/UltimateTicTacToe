@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Tic-Tac-Toe: Space Edition</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭕</text></svg>">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <div id="gameOverlay" class="game-overlay"></div>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>Ultimate Tic-Tac-Toe</h1>
+        </div>
+        
+        <div class="game-layout">
+            <div class="main-board-container">
+                <div id="mainBoard" class="main-board"></div>
+            </div>
+            
+            <div class="side-panel">
+                <div class="meta-board-container">
+                    <h3>Meta Board</h3>
+                    <div id="metaBoard" class="meta-board"></div>
+                </div>
+                
+                <div class="game-info">
+                    <div id="statusBar" class="status-bar">
+                        <p id="gameStatus">Player X's Turn</p>
+                    </div>
+                    
+                    <div class="controls">
+                        <button id="restartBtn" class="neon-button">Restart Game</button>
+                        <button id="toggleAIBtn" class="neon-button">Light Mode</button>
+                        <div class="difficulty-select">
+                            <select id="difficultySelect" class="neon-select">
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- <div class="debug-controls">
+                        <button id="debugWinBtn" class="neon-button debug-button">Force Win</button>
+                        <button id="debugLoseBtn" class="neon-button debug-button">Force Lose</button>
+                    </div> -->
+                    
+                    <div class="instructions">
+                        <h3>How to Play</h3>
+                        <ul>
+                            <li>Click to make a move</li>
+                            <li>You must play in the sub-board corresponding to the last move</li>
+                            <li>Win 3 sub-boards in a row to win</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="gameOverlay" class="game-overlay"></div>
+    <div id="difficultyModal" class="modal">
+        <div class="modal-content">
+            <p>This difficulty level is still under development. Please try Easy mode for now!</p>
+            <button class="modal-button" onclick="document.getElementById('difficultyModal').style.display='none';">OK</button>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html> 
