@@ -642,4 +642,51 @@ body.light-theme .active-board {
 .modal-button:hover {
     box-shadow: 0 0 10px var(--primary-color);
     transform: scale(1.05);
+}
+
+.ai-metrics {
+    background-color: var(--grid-color);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.ai-metrics h3 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.metric-item {
+    background-color: var(--cell-bg);
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.metric-label {
+    font-size: 0.9em;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.metric-value {
+    font-size: 1.2em;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
 } 

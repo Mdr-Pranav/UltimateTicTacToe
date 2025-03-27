@@ -16,6 +16,8 @@ class UltimateTicTacToe {
         this.aiEnabled = true;
         this.isAnimating = false;
         this.isDarkTheme = true;
+        this.lastMove = null;
+        this.difficulty = 'easy'; // Default difficulty
         
         // Timing constants
         this.AI_THINKING_TIME = 1000;  // Time before AI makes a move
@@ -117,9 +119,22 @@ class UltimateTicTacToe {
         // Difficulty select handler
         this.difficultySelect.addEventListener('change', (e) => {
             const difficulty = e.target.value;
-            if (difficulty !== 'easy') {
+            this.difficulty = difficulty;
+            
+            // Show/hide metrics based on difficulty
+            const metricsElement = document.getElementById('aiMetrics');
+            metricsElement.style.display = difficulty === 'medium' ? 'block' : 'none';
+            
+            if (difficulty === 'hard') {
                 this.difficultyModal.style.display = 'flex';
                 e.target.value = 'easy';
+                this.difficulty = 'easy';
+                metricsElement.style.display = 'none';
+            }
+            
+            // Update metrics if medium difficulty is selected
+            if (difficulty === 'medium') {
+                this.updateMetrics();
             }
         });
 
@@ -141,9 +156,10 @@ class UltimateTicTacToe {
         // Make the move
         this.board[row][col] = this.currentPlayer;
         
-        // Update active sub-board
+        // Update active sub-board (restored original logic)
         this.activeSubRow = row % 3;
         this.activeSubCol = col % 3;
+        this.lastMove = [this.activeSubRow, this.activeSubCol];
         
         // Update display with animation
         await this.updateDisplayWithAnimation(row, col);
@@ -169,6 +185,11 @@ class UltimateTicTacToe {
         // AI move if enabled
         if (this.currentPlayer === this.PLAYER_O && this.aiEnabled && !this.gameOver) {
             setTimeout(() => this.aiMove(), this.AI_THINKING_TIME);
+        }
+        
+        // If game is over and in medium mode, send training data
+        if (this.gameOver && this.difficulty === 'medium') {
+            await this.sendTrainingData();
         }
         
         return true;
@@ -471,20 +492,70 @@ class UltimateTicTacToe {
         document.body.style.animation = 'shake 0.5s ease-in-out';
     }
 
-    aiMove() {
-        if (this.gameOver || this.currentPlayer !== this.PLAYER_O || !this.aiEnabled || this.isAnimating) return;
-        
-        // Get valid moves
+    async updateMetrics() {
+        try {
+            const response = await fetch('/api/metrics');
+            const metrics = await response.json();
+            
+            // Update metrics display
+            document.getElementById('totalGames').textContent = metrics.total_games;
+            document.getElementById('winRate').textContent = `${(metrics.win_rate * 100).toFixed(1)}%`;
+            document.getElementById('totalStates').textContent = metrics.total_states;
+            document.getElementById('explorationRate').textContent = `${(metrics.exploration_rate * 100).toFixed(1)}%`;
+        } catch (error) {
+            console.error('Error fetching metrics:', error);
+        }
+    }
+
+    async aiMove() {
+        if (this.gameOver || this.isAnimating) return;
+
+        if (this.difficulty === 'medium') {
+            try {
+                const response = await fetch('/api/move', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        mainBoard: this.board,
+                        metaBoard: this.metaBoard,
+                        lastMove: this.lastMove,
+                        currentPlayer: this.currentPlayer
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.move) {
+                    const { subBoardI, subBoardJ, subI, subJ } = data.move;
+                    const row = subBoardI * 3 + subI;
+                    const col = subBoardJ * 3 + subJ;
+                    
+                    await this.makeMove(row, col);
+                    
+                    // Update metrics after AI move
+                    this.updateMetrics();
+                }
+            } catch (error) {
+                console.error('Error making AI move:', error);
+                this.makeRandomMove();
+            }
+        } else {
+            this.makeRandomMove();
+        }
+    }
+
+    makeRandomMove() {
         const validMoves = [];
-        for (let r = 0; r < 9; r++) {
-            for (let c = 0; c < 9; c++) {
-                if (this.isValidMove(r, c)) {
-                    validMoves.push([r, c]);
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                if (this.isValidMove(row, col)) {
+                    validMoves.push([row, col]);
                 }
             }
         }
         
-        // Make random move
         if (validMoves.length > 0) {
             const [row, col] = validMoves[Math.floor(Math.random() * validMoves.length)];
             this.makeMove(row, col);
@@ -544,6 +615,79 @@ class UltimateTicTacToe {
         // Update display and show effects
         this.updateDisplay();
     }
+
+    async sendTrainingData() {
+        try {
+            const response = await fetch('/api/train', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    state: this.getStateKey(),
+                    action: this.lastMove,
+                    reward: this.winner === this.PLAYER_O ? 1.0 : (this.winner === this.PLAYER_X ? -1.0 : 0.0),
+                    nextState: this.getStateKey(),
+                    nextValidActions: this.getValidActions()
+                })
+            });
+            
+            if (response.ok) {
+                await this.updateMetrics();
+            }
+        } catch (error) {
+            console.error('Error sending training data:', error);
+        }
+    }
+
+    getStateKey() {
+        // Convert game state to string key
+        let state = '';
+        // Add main board state
+        for (let row of this.board) {
+            for (let cell of row) {
+                state += cell || ' ';
+            }
+        }
+        // Add meta board state
+        for (let row of this.metaBoard) {
+            for (let cell of row) {
+                state += cell || ' ';
+            }
+        }
+        // Add last move and current player
+        state += `${this.lastMove ? this.lastMove[0] : 'n'},${this.lastMove ? this.lastMove[1] : 'n'},${this.currentPlayer}`;
+        return state;
+    }
+
+    getValidActions() {
+        const validActions = [];
+        if (this.lastMove === null) {
+            // First move can be anywhere
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    for (let sub_i = 0; sub_i < 3; sub_i++) {
+                        for (let sub_j = 0; sub_j < 3; sub_j++) {
+                            validActions.push([i, j, sub_i, sub_j]);
+                        }
+                    }
+                }
+            }
+        } else {
+            // Must play in the sub-board corresponding to last move
+            const [sub_board_i, sub_board_j] = this.lastMove;
+            if (!this.metaBoard[sub_board_i][sub_board_j]) {
+                for (let sub_i = 0; sub_i < 3; sub_i++) {
+                    for (let sub_j = 0; sub_j < 3; sub_j++) {
+                        if (!this.board[sub_board_i * 3 + sub_i][sub_board_j * 3 + sub_j]) {
+                            validActions.push([sub_board_i, sub_board_j, sub_i, sub_j]);
+                        }
+                    }
+                }
+            }
+        }
+        return validActions;
+    }
 }
 
 // Add this to your existing CSS animations
@@ -557,7 +701,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Start the game when the page loads
-window.addEventListener('load', () => {
-    new UltimateTicTacToe();
+// Initialize the game when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    window.game = new UltimateTicTacToe();
 }); 
