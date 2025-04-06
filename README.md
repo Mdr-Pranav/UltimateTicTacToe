@@ -64,7 +64,3 @@ The project structure is organized as follows:
 - `index.html`: Main game interface
 - `css/styles.css`: Styling
 - `js/game.js`: Game logic and UI interactions
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
